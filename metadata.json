@@ -1,0 +1,5 @@
+{
+  "name": "DealHuntApp",
+  "description": "DealHunt is a smart shopping assistant that tracks product prices and notifies you when prices drop below your set target. Browse deals, set alerts, and save money.",
+  "requestFramePermissions": []
+}
