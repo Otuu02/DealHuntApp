@@ -2,19 +2,66 @@
 import { User, Alert } from '../types';
 import { STORAGE_KEYS } from '../constants';
 
-// --- User Management ---
+// --- User DB Management ---
 
-export const saveCurrentUser = (user: User): void => {
+type UserDB = {
+  [email: string]: User;
+}
+
+const loadAllUsers = (): UserDB => {
   try {
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    const usersJson = localStorage.getItem(STORAGE_KEYS.USERS_DB);
+    if (!usersJson) return {};
+    return JSON.parse(usersJson);
+  } catch (error) {
+    console.error("Failed to load users:", error);
+    return {};
+  }
+}
+
+const saveAllUsers = (users: UserDB): void => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.USERS_DB, JSON.stringify(users));
+  } catch (error) {
+    console.error("Failed to save users:", error);
+  }
+}
+
+export const registerUser = async (user: User): Promise<{success: boolean, message: string}> => {
+  const allUsers = loadAllUsers();
+  if (allUsers[user.email]) {
+    return { success: false, message: 'An account with this email already exists.' };
+  }
+  allUsers[user.email] = user;
+  saveAllUsers(allUsers);
+  return { success: true, message: 'User registered successfully.' };
+}
+
+export const loginUser = async (email: string, password_provided: string): Promise<User | null> => {
+    const allUsers = loadAllUsers();
+    const user = allUsers[email];
+    if (user && user.password === password_provided) {
+        return user;
+    }
+    return null;
+}
+
+
+// --- Logged-in User Session ---
+
+export const saveLoggedInUser = (user: User): void => {
+  try {
+    // Don't save password in the session storage for security
+    const userToSave = { email: user.email, name: user.name };
+    localStorage.setItem(STORAGE_KEYS.LOGGED_IN_USER, JSON.stringify(userToSave));
   } catch (error) {
     console.error("Failed to save current user:", error);
   }
 };
 
-export const getCurrentUser = (): User | null => {
+export const getLoggedInUser = (): User | null => {
   try {
-    const userJson = localStorage.getItem(STORAGE_KEYS.USER);
+    const userJson = localStorage.getItem(STORAGE_KEYS.LOGGED_IN_USER);
     if (!userJson) return null;
     return JSON.parse(userJson);
   } catch (error) {
@@ -22,6 +69,14 @@ export const getCurrentUser = (): User | null => {
     return null;
   }
 };
+
+export const logoutUser = (): void => {
+    try {
+        localStorage.removeItem(STORAGE_KEYS.LOGGED_IN_USER);
+    } catch (error) {
+        console.error("Failed to logout user:", error);
+    }
+}
 
 // --- Alert Management ---
 
@@ -80,4 +135,3 @@ export const clearAlertsForCurrentUser = async (email: string): Promise<void> =>
   saveAllAlerts(allAlerts);
   return Promise.resolve();
 };
-   

@@ -1,6 +1,8 @@
-import { Product } from '../types';
+import { Product, Marketplace } from '../types';
 
 // --- Marketplace Data ---
+
+const marketplaces: Marketplace[] = ['Gadget World', 'Home Essentials', 'Fashion Hub'];
 
 const gadgetWorldProducts: Product[] = [
   {
@@ -120,10 +122,15 @@ const shuffleArray = (array: any[]) => {
   return array;
 }
 
-export const getDeals = async (): Promise<Product[]> => {
+export const getMarketplaces = (): Marketplace[] => {
+  return marketplaces;
+}
+
+export const getAllProducts = async (shuffled: boolean = false): Promise<Product[]> => {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 500));
-  return shuffleArray([...allMockProducts]);
+  const products = [...allMockProducts];
+  return shuffled ? shuffleArray(products) : products;
 };
 
 export const fetchUpdatedPrices = async (productIds: string[]): Promise<Record<string, number>> => {

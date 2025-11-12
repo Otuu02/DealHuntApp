@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Screen } from '../types';
 import { HomeIcon, SearchIcon, BellIcon, CogIcon } from './icons/Icons';
@@ -6,16 +5,27 @@ import { HomeIcon, SearchIcon, BellIcon, CogIcon } from './icons/Icons';
 interface HeaderProps {
   activeScreen: Screen;
   setActiveScreen: (screen: Screen) => void;
+  alertCount: number;
 }
 
-const navItems: { screen: Screen, label: string, icon: React.ReactNode }[] = [
-  { screen: 'Home', label: 'Deals', icon: <HomeIcon /> },
-  { screen: 'Search', label: 'Search', icon: <SearchIcon /> },
-  { screen: 'Alerts', label: 'Alerts', icon: <BellIcon /> },
-  { screen: 'Settings', label: 'Settings', icon: <CogIcon /> },
-];
+const Header: React.FC<HeaderProps> = ({ activeScreen, setActiveScreen, alertCount }) => {
+  
+  const navItems: { screen: Screen, label: string, icon: React.ReactNode }[] = [
+    { screen: 'Home', label: 'Deals', icon: <HomeIcon /> },
+    { screen: 'Search', label: 'Search', icon: <SearchIcon /> },
+    { screen: 'Alerts', label: 'Alerts', icon: (
+      <div className="relative">
+        <BellIcon />
+        {alertCount > 0 && (
+          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
+            {alertCount}
+          </span>
+        )}
+      </div>
+    ) },
+    { screen: 'Settings', label: 'Settings', icon: <CogIcon /> },
+  ];
 
-const Header: React.FC<HeaderProps> = ({ activeScreen, setActiveScreen }) => {
   return (
     <header className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 md:top-0 md:bottom-auto md:border-b md:border-t-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,4 +64,3 @@ const Header: React.FC<HeaderProps> = ({ activeScreen, setActiveScreen }) => {
 };
 
 export default Header;
-   

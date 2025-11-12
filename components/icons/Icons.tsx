@@ -1,9 +1,12 @@
 
 import React from 'react';
 
+// FIX: Changed "aria-hidden" value from string "true" to boolean `true`.
+// This resolves a TypeScript error because the type of "aria-hidden" in React's SVGProps
+// is `Booleanish` (boolean | 'true' | 'false'), and a generic string is not assignable to it.
 const iconProps = {
   className: "w-6 h-6",
-  "aria-hidden": "true",
+  "aria-hidden": true,
   xmlns: "http://www.w3.org/2000/svg",
   fill: "none",
   viewBox: "0 0 24 24",
@@ -48,4 +51,3 @@ export const CheckCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) 
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
-   

@@ -6,19 +6,19 @@ interface DealDetailsModalProps {
   product: Product;
   onClose: () => void;
   currentUser: User | null;
+  onAlertSet: () => void;
 }
 
-const DealDetailsModal: React.FC<DealDetailsModalProps> = ({ product, onClose, currentUser }) => {
+const DealDetailsModal: React.FC<DealDetailsModalProps> = ({ product, onClose, currentUser, onAlertSet }) => {
   const [targetPrice, setTargetPrice] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const discountPercentage = product.oldPrice
     ? Math.round(((product.oldPrice - product.currentPrice) / product.oldPrice) * 100)
     : 0;
 
   const handleSetAlert = async () => {
-    if (!currentUser || !targetPrice || isNaN(Number(targetPrice))) return;
+    if (!currentUser || !targetPrice || isNaN(Number(targetPrice)) || Number(targetPrice) <= 0) return;
     
     setIsSaving(true);
     
@@ -35,18 +35,13 @@ const DealDetailsModal: React.FC<DealDetailsModalProps> = ({ product, onClose, c
     await saveAlertForUser(currentUser.email, newAlert);
     
     setIsSaving(false);
-    setShowSuccess(true);
-    setTargetPrice('');
-    
-    setTimeout(() => {
-      setShowSuccess(false);
-      onClose();
-    }, 2000);
+    onAlertSet();
+    onClose();
   };
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 fade-in"
       onClick={onClose}
     >
       <div 
@@ -99,6 +94,7 @@ const DealDetailsModal: React.FC<DealDetailsModalProps> = ({ product, onClose, c
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">₦</span>
                     <input 
                         type="number"
+                        min="1"
                         placeholder={`e.g., ${Math.round(product.currentPrice * 0.9)}`}
                         value={targetPrice}
                         onChange={(e) => setTargetPrice(e.target.value)}
@@ -107,20 +103,13 @@ const DealDetailsModal: React.FC<DealDetailsModalProps> = ({ product, onClose, c
                 </div>
                 <button
                   onClick={handleSetAlert}
-                  disabled={isSaving || !targetPrice}
+                  disabled={isSaving || !targetPrice || Number(targetPrice) <= 0}
                   className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
                 >
                   {isSaving ? 'Saving...' : 'Set Alert'}
                 </button>
               </div>
             </div>
-
-            {showSuccess && (
-              <div className="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative" role="alert">
-                <strong className="font-bold">Success!</strong>
-                <span className="block sm:inline"> Price alert has been set.</span>
-              </div>
-            )}
           </div>
         </div>
       </div>

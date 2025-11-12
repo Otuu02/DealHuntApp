@@ -1,14 +1,14 @@
-
 import { useEffect, useRef } from 'react';
 import { User, Alert } from '../types';
 import { loadAlertsForCurrentUser, saveAlertsForCurrentUser } from '../services/storage';
-import { fetchUpdatedPrices } from '../services/productService';
+import { fetchUpdatedPrices } from '../productService';
 
 const CHECK_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
 export const usePriceChecker = (
     currentUser: User | null, 
-    notificationPermission: NotificationPermission
+    notificationPermission: NotificationPermission,
+    onUpdate: () => void,
 ) => {
   const isChecking = useRef(false);
 
@@ -31,6 +31,7 @@ export const usePriceChecker = (
         const updatedPrices = await fetchUpdatedPrices(productIds);
         
         let alertsUpdated = false;
+        let notificationTriggered = false;
         const newAlertsState = [...alerts];
 
         for (const alert of newAlertsState) {
@@ -46,6 +47,7 @@ export const usePriceChecker = (
           if (!alert.notified && newPrice !== undefined && newPrice <= alert.targetPrice) {
             alert.notified = true;
             alertsUpdated = true;
+            notificationTriggered = true;
             
             if (notificationPermission === 'granted') {
               new Notification('Price Alert Triggered!', {
@@ -58,6 +60,10 @@ export const usePriceChecker = (
 
         if (alertsUpdated) {
           await saveAlertsForCurrentUser(currentUser.email, newAlertsState);
+          // If a notification was triggered, call the onUpdate callback to refresh UI
+          if(notificationTriggered) {
+            onUpdate();
+          }
         }
 
       } catch (error) {
@@ -73,7 +79,5 @@ export const usePriceChecker = (
       const intervalId = setInterval(checkPrices, CHECK_INTERVAL);
       return () => clearInterval(intervalId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, notificationPermission]);
+  }, [currentUser, notificationPermission, onUpdate]);
 };
-   

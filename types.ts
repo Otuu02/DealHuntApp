@@ -1,7 +1,10 @@
 export interface User {
   email: string;
   name: string;
+  password?: string;
 }
+
+export type Marketplace = 'Gadget World' | 'Home Essentials' | 'Fashion Hub';
 
 export interface Product {
   id: string;
@@ -10,7 +13,7 @@ export interface Product {
   image: string;
   currentPrice: number;
   oldPrice?: number;
-  marketplace: string;
+  marketplace: Marketplace;
   productUrl: string;
 }
 
@@ -26,3 +29,9 @@ export interface Alert {
 }
 
 export type Screen = 'Home' | 'Search' | 'Alerts' | 'Settings';
+
+export interface ToastMessage {
+  id: number;
+  message: string;
+  type: 'success' | 'error';
+}
